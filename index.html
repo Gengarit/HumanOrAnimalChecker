@@ -92,7 +92,11 @@
 
     async function setupCamera() {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        // Request higher resolution for better detection
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+          audio: false
+        });
         video.srcObject = stream;
         await new Promise((resolve) => {
           video.onloadedmetadata = () => resolve();
@@ -106,6 +110,8 @@
 
     async function loadModel() {
       try {
+        result.textContent = 'LOADING MODEL...';
+        result.style.color = '#29b6f6';
         model = await cocoSsd.load();
       } catch (err) {
         result.textContent = 'MODEL LOAD ERROR';
@@ -115,6 +121,8 @@
     }
 
     function classify(predictions) {
+      // Debug: log predictions to the console
+      console.log('Predictions:', predictions);
       let found = false;
       for (const pred of predictions) {
         if (pred.class === 'person') {
